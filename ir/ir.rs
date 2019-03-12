@@ -564,6 +564,7 @@ impl From<Misc> for ItemKind {
 /// Executable code. Function bodies.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Code {
+    name: Option<String>,
     demangled: Option<String>,
     monomorphization_of: Option<String>,
 }
@@ -575,6 +576,7 @@ impl Code {
         let monomorphization_of =
             Self::extract_generic_function(demangled.as_ref().map(|s| s.as_str()).unwrap_or(name));
         Code {
+            name: Some(name.to_string()),
             demangled,
             monomorphization_of,
         }
