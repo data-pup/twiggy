@@ -681,13 +681,14 @@ impl Code {
 /// with the executable code.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Data {
+    name: String,
     ty: Option<String>,
 }
 
 impl Data {
     /// Construct a new `Data` that has a type of the given type name, if known.
-    pub fn new(ty: Option<String>) -> Data {
-        Data { ty }
+    pub fn new(name: &str, ty: Option<String>) -> Data {
+        Data { name: name.to_string(), ty }
     }
 }
 

@@ -530,7 +530,8 @@ impl<'a> Parse<'a> for wasmparser::GlobalSectionReader<'a> {
             let id = Id::entry(idx, i);
             let name = format!("global[{}]", i);
             let ty = ty2str(g.ty.content_type).to_string();
-            items.add_item(ir::Item::new(id, name, size, ir::Data::new(Some(ty))));
+            let item_kind = ir::Data::new(&name, Some(ty));
+            items.add_item(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -782,7 +783,8 @@ impl<'a> Parse<'a> for wasmparser::DataSectionReader<'a> {
             let (d, size) = d?;
             let id = Id::entry(idx, i);
             let name = format!("data[{}]", i);
-            items.add_item(ir::Item::new(id, name, size, ir::Data::new(None)));
+            let item_kind = ir::Data::new(&name, None);
+            items.add_item(ir::Item::new(id, name, size, item_kind));
 
             // Get the constant address (if any) from the initialization
             // expression.
