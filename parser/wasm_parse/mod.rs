@@ -311,7 +311,8 @@ impl<'a> Parse<'a> for wasmparser::NameSectionReader<'a> {
                 wasmparser::Name::Local(_) => "\"local names\" subsection",
             };
             let id = Id::entry(idx, i);
-            items.add_root(ir::Item::new(id, name, size, ir::DebugInfo::new()));
+            let item_kind = ir::DebugInfo::new(&name);
+            items.add_root(ir::Item::new(id, name, size, item_kind));
             i += 1;
         }
 

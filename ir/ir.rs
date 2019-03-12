@@ -694,12 +694,14 @@ impl Data {
 
 /// Debugging symbols and information, such as DWARF sections.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct DebugInfo;
+pub struct DebugInfo {
+    name: String,
+}
 
 impl DebugInfo {
     /// Construct a new IR item for debug information and symbols.
-    pub fn new() -> DebugInfo {
-        DebugInfo
+    pub fn new(name: &str) -> DebugInfo {
+        DebugInfo { name: name.to_string() }
     }
 }
 
