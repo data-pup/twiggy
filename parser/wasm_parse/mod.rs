@@ -37,7 +37,7 @@ impl<'a> Parse<'a> for wasmparser::ModuleReader<'a> {
             id,
             "wasm magic bytes".to_string(),
             initial_offset as u32,
-            ir::Misc::new(),
+            ir::Misc::new("wasm magic bytes"),
         ));
 
         // Before we actually parse any items prepare to parse a few sections
@@ -148,7 +148,8 @@ impl<'a> Parse<'a> for wasmparser::ModuleReader<'a> {
             let id = Id::section(idx);
             let added = items.size_added() - start;
             assert!(added <= size);
-            items.add_root(ir::Item::new(id, name, size - added, ir::Misc::new()));
+            let item_kind =  ir::Misc::new(&name);
+            items.add_root(ir::Item::new(id, name, size - added, item_kind));
         }
 
         Ok(())
@@ -344,7 +345,8 @@ impl<'a> Parse<'a> for CustomSectionReader<'a> {
             let size = (range.end - range.start) as u32;
             let id = Id::entry(idx, 0);
             let name = format!("custom section '{}'", self.0);
-            items.add_item(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_item(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -392,7 +394,8 @@ impl<'a> Parse<'a> for wasmparser::TypeSectionReader<'a> {
                 }
             }
 
-            items.add_item(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_item(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -416,7 +419,8 @@ impl<'a> Parse<'a> for wasmparser::ImportSectionReader<'a> {
             let (imp, size) = imp?;
             let id = Id::entry(idx, i);
             let name = format!("import {}::{}", imp.module, imp.field);
-            items.add_item(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_item(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -440,7 +444,8 @@ impl<'a> Parse<'a> for wasmparser::FunctionSectionReader<'a> {
             let (_func, size) = func?;
             let id = Id::entry(idx, i);
             let name = format!("func[{}]", i);
-            items.add_item(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_item(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -482,7 +487,8 @@ impl<'a> Parse<'a> for wasmparser::TableSectionReader<'a> {
             let (_entry, size) = entry?;
             let id = Id::entry(idx, i);
             let name = format!("table[{}]", i);
-            items.add_root(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_root(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -506,7 +512,8 @@ impl<'a> Parse<'a> for wasmparser::MemorySectionReader<'a> {
             let (_mem, size) = mem?;
             let id = Id::entry(idx, i);
             let name = format!("memory[{}]", i);
-            items.add_item(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_item(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -556,7 +563,8 @@ impl<'a> Parse<'a> for wasmparser::ExportSectionReader<'a> {
             let (exp, size) = exp?;
             let id = Id::entry(idx, i);
             let name = format!("export \"{}\"", exp.field);
-            items.add_root(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_root(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }
@@ -605,7 +613,8 @@ impl<'a> Parse<'a> for StartSection<'a> {
         let size = (range.end - range.start) as u32;
         let id = Id::section(idx);
         let name = "\"start\" section";
-        items.add_root(ir::Item::new(id, name, size, ir::Misc::new()));
+        let item_kind = ir::Misc::new(name);
+        items.add_root(ir::Item::new(id, name, size, item_kind));
         Ok(())
     }
 
@@ -636,7 +645,8 @@ impl<'a> Parse<'a> for DataCountSection<'a> {
         let size = (range.end - range.start) as u32;
         let id = Id::section(idx);
         let name = "\"data count\" section";
-        items.add_root(ir::Item::new(id, name, size, ir::Misc::new()));
+        let item_kind = ir::Misc::new(name);
+        items.add_root(ir::Item::new(id, name, size, item_kind));
         Ok(())
     }
 
@@ -659,7 +669,8 @@ impl<'a> Parse<'a> for wasmparser::ElementSectionReader<'a> {
             let (_elem, size) = elem?;
             let id = Id::entry(idx, i);
             let name = format!("elem[{}]", i);
-            items.add_item(ir::Item::new(id, name, size, ir::Misc::new()));
+            let item_kind = ir::Misc::new(&name);
+            items.add_item(ir::Item::new(id, name, size, item_kind));
         }
         Ok(())
     }

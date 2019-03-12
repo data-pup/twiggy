@@ -110,7 +110,7 @@ impl ItemsBuilder {
     /// Finish building the IR graph and return the resulting `Items`.
     pub fn finish(mut self) -> Items {
         let meta_root_id = Id::root();
-        let meta_root = Item::new(meta_root_id, "<meta root>", 0, Misc::new());
+        let meta_root = Item::new(meta_root_id, "<meta root>", 0, Misc::new("<meta root>"));
         self.items.insert(meta_root_id, meta_root);
         self.edges.insert(meta_root_id, self.roots.clone());
 
@@ -707,11 +707,13 @@ impl DebugInfo {
 
 /// Miscellaneous item. Perhaps metadata. Perhaps something else.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct Misc;
+pub struct Misc{
+    name: String,
+}
 
 impl Misc {
     /// Construct a new miscellaneous IR item.
-    pub fn new() -> Misc {
-        Misc
+    pub fn new(name: &str) -> Misc {
+        Misc { name: name.to_string() }
     }
 }
