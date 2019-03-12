@@ -685,7 +685,10 @@ pub struct Data {
 impl Data {
     /// Construct a new `Data` that has a type of the given type name, if known.
     pub fn new(name: &str, ty: Option<String>) -> Data {
-        Data { name: name.to_string(), ty }
+        Data {
+            name: name.to_string(),
+            ty,
+        }
     }
 }
 
@@ -698,19 +701,23 @@ pub struct DebugInfo {
 impl DebugInfo {
     /// Construct a new IR item for debug information and symbols.
     pub fn new(name: &str) -> DebugInfo {
-        DebugInfo { name: name.to_string() }
+        DebugInfo {
+            name: name.to_string(),
+        }
     }
 }
 
 /// Miscellaneous item. Perhaps metadata. Perhaps something else.
 #[derive(Clone, Debug, PartialEq, Eq, Default)]
-pub struct Misc{
+pub struct Misc {
     name: String,
 }
 
 impl Misc {
     /// Construct a new miscellaneous IR item.
     pub fn new(name: &str) -> Misc {
-        Misc { name: name.to_string() }
+        Misc {
+            name: name.to_string(),
+        }
     }
 }

@@ -147,7 +147,7 @@ impl<'a> Parse<'a> for wasmparser::ModuleReader<'a> {
             let id = Id::section(idx);
             let added = items.size_added() - start;
             assert!(added <= size);
-            let item_kind =  ir::Misc::new(&name);
+            let item_kind = ir::Misc::new(&name);
             items.add_root(ir::Item::new(id, size - added, item_kind));
         }
 
