@@ -110,7 +110,7 @@ impl ItemsBuilder {
     /// Finish building the IR graph and return the resulting `Items`.
     pub fn finish(mut self) -> Items {
         let meta_root_id = Id::root();
-        let meta_root = Item::new(meta_root_id, "<meta root>", 0, Misc::new("<meta root>"));
+        let meta_root = Item::new(meta_root_id, 0, Misc::new("<meta root>"));
         self.items.insert(meta_root_id, meta_root);
         self.edges.insert(meta_root_id, self.roots.clone());
 
@@ -437,22 +437,18 @@ impl Id {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Item {
     id: Id,
-    name: String,
     size: u32,
     kind: ItemKind,
 }
 
 impl Item {
     /// Construct a new `Item` of the given kind.
-    pub fn new<S, K>(id: Id, name: S, size: u32, kind: K) -> Item
+    pub fn new<K>(id: Id, size: u32, kind: K) -> Item
     where
-        S: Into<String>,
         K: Into<ItemKind>,
     {
-        let name = name.into();
         Item {
             id,
-            name,
             size,
             kind: kind.into(),
         }
@@ -473,10 +469,11 @@ impl Item {
     /// Get this item's name.
     #[inline]
     pub fn name(&self) -> &str {
-        if let ItemKind::Code(ref code) = self.kind {
-            code.demangled().unwrap_or(&self.name)
-        } else {
-            &self.name
+        match &self.kind {
+            ItemKind::Code(code) => code.demangled().unwrap_or_else(|| &code.name),
+            ItemKind::Data(Data { name, .. }) => &name,
+            ItemKind::Debug(DebugInfo { name, .. }) => &name,
+            ItemKind::Misc(Misc { name, .. }) => &name,
         }
     }
 
@@ -564,7 +561,7 @@ impl From<Misc> for ItemKind {
 /// Executable code. Function bodies.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Code {
-    name: Option<String>,
+    name: String,
     demangled: Option<String>,
     monomorphization_of: Option<String>,
 }
@@ -576,7 +573,7 @@ impl Code {
         let monomorphization_of =
             Self::extract_generic_function(demangled.as_ref().map(|s| s.as_str()).unwrap_or(name));
         Code {
-            name: Some(name.to_string()),
+            name: name.to_string(),
             demangled,
             monomorphization_of,
         }
