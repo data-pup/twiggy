@@ -468,12 +468,17 @@ impl Item {
 
     /// Get this item's name.
     #[inline]
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> String {
         match &self.kind {
-            ItemKind::Code(code) => code.demangled().unwrap_or_else(|| &code.name),
-            ItemKind::Data(Data { name, .. }) => &name,
-            ItemKind::Debug(DebugInfo { name, .. }) => &name,
-            ItemKind::Misc(Misc { name, .. }) => &name,
+            ItemKind::Code(code) => {
+                code.demangled()
+                    .or_else(|| code.name())
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| format!("code[{}]", self.id().1))
+            },
+            ItemKind::Data(Data { name, .. }) => name.to_string(),
+            ItemKind::Debug(DebugInfo { name, .. }) => name.to_string(),
+            ItemKind::Misc(Misc { name, .. }) => name.to_string(),
         }
     }
 
@@ -561,22 +566,26 @@ impl From<Misc> for ItemKind {
 /// Executable code. Function bodies.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Code {
-    name: String,
+    name: Option<String>,
     demangled: Option<String>,
     monomorphization_of: Option<String>,
 }
 
 impl Code {
     /// Construct a new IR item for executable code.
-    pub fn new(name: &str) -> Code {
-        let demangled = Self::demangle(&name);
-        let monomorphization_of =
-            Self::extract_generic_function(demangled.as_ref().map(|s| s.as_str()).unwrap_or(name));
+    pub fn new(name: Option<String>) -> Code {
+        let demangled = name.as_ref().and_then(|n| Self::demangle(&n));
+        let monomorphization_of = demangled.as_ref().and_then(|d| Self::extract_generic_function(&d));
         Code {
-            name: name.to_string(),
+            name,
             demangled,
             monomorphization_of,
         }
+    }
+
+    /// Get the name of this function body, if any.
+    pub(crate) fn name(&self) -> Option<&str> {
+        self.demangled.as_ref().map(|s| s.as_str())
     }
 
     /// Get the demangled name of this function, if any.
