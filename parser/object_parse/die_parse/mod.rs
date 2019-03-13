@@ -51,11 +51,9 @@ where
                     DieLocationAttributes::try_from(self)?.entity_size(dwarf, unit)?
                 {
                     let id = ir::Id::entry(unit_id, entry_id);
-                    // FIXME: We will need an `ir::Subroutine` variant for this.
-                    // let name = item_name(self, dwarf, unit)?
-                    //     .unwrap_or_else(|| format!("Subroutine[{}][{}]", unit_id, entry_id));
-                    let name: Option<String> = unimplemented!();
-                    let kind: ir::ItemKind = ir::Code::new(name).into();
+                    let name = item_name(self, dwarf, unit)?;
+                    let decorater = format!("Subroutine[{}][{}]", unit_id, entry_id);
+                    let kind = ir::Code::new(name, decorater);
                     ir::Item::new(id, size as u32, kind)
                 } else {
                     return Ok(());

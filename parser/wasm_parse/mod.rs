@@ -715,8 +715,8 @@ impl<'a> Parse<'a> for wasmparser::CodeSectionReader<'a> {
             let name = names
                 .get(&(i + imported_functions))
                 .map(ToString::to_string);
-
-            let code = ir::Code::new(name);
+            let decorater = format!("code[{}]", i);
+            let code = ir::Code::new(name, decorater);
             items.add_item(ir::Item::new(id, size, code));
         }
 

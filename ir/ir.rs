@@ -468,17 +468,16 @@ impl Item {
 
     /// Get this item's name.
     #[inline]
-    pub fn name(&self) -> String {
+    pub fn name(&self) -> &str {
         match &self.kind {
             ItemKind::Code(code) => {
                 code.demangled()
                     .or_else(|| code.name())
-                    .map(ToString::to_string)
-                    .unwrap_or_else(|| format!("code[{}]", self.id().1))
+                    .unwrap_or_else(|| code.decorator())
             },
-            ItemKind::Data(Data { name, .. }) => name.to_string(),
-            ItemKind::Debug(DebugInfo { name, .. }) => name.to_string(),
-            ItemKind::Misc(Misc { name, .. }) => name.to_string(),
+            ItemKind::Data(Data { name, .. }) => name,
+            ItemKind::Debug(DebugInfo { name, .. }) => name,
+            ItemKind::Misc(Misc { name, .. }) => name,
         }
     }
 
@@ -567,17 +566,19 @@ impl From<Misc> for ItemKind {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Code {
     name: Option<String>,
+    decorator: String,
     demangled: Option<String>,
     monomorphization_of: Option<String>,
 }
 
 impl Code {
     /// Construct a new IR item for executable code.
-    pub fn new(name: Option<String>) -> Code {
+    pub fn new(name: Option<String>, decorator: String) -> Code {
         let demangled = name.as_ref().and_then(|n| Self::demangle(&n));
         let monomorphization_of = demangled.as_ref().and_then(|d| Self::extract_generic_function(&d));
         Code {
             name,
+            decorator,
             demangled,
             monomorphization_of,
         }
@@ -585,7 +586,12 @@ impl Code {
 
     /// Get the name of this function body, if any.
     pub(crate) fn name(&self) -> Option<&str> {
-        self.demangled.as_ref().map(|s| s.as_str())
+        self.name.as_ref().map(|s| s.as_str())
+    }
+
+    /// Get the decorator for this function body, if any.
+    pub(crate) fn decorator(&self) -> &str {
+        self.decorator.as_str()
     }
 
     /// Get the demangled name of this function, if any.
