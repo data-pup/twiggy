@@ -468,17 +468,25 @@ impl Item {
 
     /// Get this item's name.
     #[inline]
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> String {
         match &self.kind {
             ItemKind::Code(code) => {
                 code.demangled()
                     .or_else(|| code.name())
                     .unwrap_or_else(|| code.decorator())
+                    .to_string()
             },
-            ItemKind::Data(Data { name, .. }) => name,
-            ItemKind::Func(func) => func.decorator(),
-            ItemKind::Debug(DebugInfo { name, .. }) => name,
-            ItemKind::Misc(Misc { name, .. }) => name,
+            ItemKind::Data(Data { name, .. }) => name.to_string(),
+            ItemKind::Func(func) => {
+                if let Some(name) = func.name() {
+                    // format!("{}: {}", func.decorator(), name)
+                    func.decorator().to_string()
+                } else {
+                    func.decorator().to_string()
+                }
+            }
+            ItemKind::Debug(DebugInfo { name, .. }) => name.to_string(),
+            ItemKind::Misc(Misc { name, .. }) => name.to_string(),
         }
     }
 
@@ -731,6 +739,11 @@ impl Function {
             name,
             decorator,
         }
+    }
+
+    /// Get the name of this function, if any.
+    pub(crate) fn name(&self) -> Option<&str> {
+        self.name.as_ref().map(|s| s.as_str())
     }
 
     pub(crate) fn decorator(&self) -> &str {
