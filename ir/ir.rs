@@ -476,6 +476,7 @@ impl Item {
                     .unwrap_or_else(|| code.decorator())
             },
             ItemKind::Data(Data { name, .. }) => name,
+            ItemKind::Func(Function { name, .. }) => name,
             ItemKind::Debug(DebugInfo { name, .. }) => name,
             ItemKind::Misc(Misc { name, .. }) => name,
         }
@@ -521,6 +522,9 @@ pub enum ItemKind {
     /// with the executable code.
     Data(Data),
 
+    /// Function definition. Declares the signature of a function.
+    Func(Function),
+
     /// Debugging symbols and information, such as a DWARF section.
     Debug(DebugInfo),
 
@@ -547,6 +551,12 @@ impl From<Code> for ItemKind {
 impl From<Data> for ItemKind {
     fn from(d: Data) -> ItemKind {
         ItemKind::Data(d)
+    }
+}
+
+impl From<Function> for ItemKind {
+    fn from(f: Function) -> ItemKind {
+        ItemKind::Func(f)
     }
 }
 
@@ -703,6 +713,21 @@ impl Data {
         Data {
             name: name.to_string(),
             ty,
+        }
+    }
+}
+
+/// Function definition. Declares the signature of a function.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Function {
+    name: String,
+}
+
+impl Function {
+    /// Construct a new IR item for function definition.
+    pub fn new(name: String) -> Function {
+        Function {
+            name,
         }
     }
 }

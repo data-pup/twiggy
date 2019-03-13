@@ -443,7 +443,7 @@ impl<'a> Parse<'a> for wasmparser::FunctionSectionReader<'a> {
             let (_func, size) = func?;
             let id = Id::entry(idx, i);
             let name = format!("func[{}]", i);
-            let item_kind = ir::Misc::new(&name);
+            let item_kind = ir::Function::new(name);
             items.add_item(ir::Item::new(id, size, item_kind));
         }
         Ok(())
