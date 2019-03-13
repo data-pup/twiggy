@@ -102,10 +102,10 @@ pub fn diff(
     let max_items = opts.max_items() as usize;
 
     // Given a set of items, create a HashMap of the items' names and sizes.
-    fn get_names_and_sizes(items: &ir::Items) -> HashMap<String, i64> {
+    fn get_names_and_sizes(items: &ir::Items) -> HashMap<String, ir::Id> {
         items
             .iter()
-            .map(|item| (item.name(), i64::from(item.size())))
+            .map(|item| (item.name(), item.id()))
             .collect()
     }
 
@@ -117,12 +117,18 @@ pub fn diff(
     // change in size, or an error if the name could not be found in
     // either of the item collections.
     let get_item_delta = |name: String| -> Result<DiffEntry, traits::Error> {
-        let old_size = old_sizes.get::<str>(&name);
-        let new_size = new_sizes.get::<str>(&name);
+        let old_size: Option<i64> = old_sizes.get::<str>(&name).map(|old_id| old_items[*old_id].size()).map(|i| i.into());
+        let new_size: Option<i64> = new_sizes.get::<str>(&name).map(|new_id| new_items[*new_id].size()).map(|i| i.into());
+        let name = new_sizes.get::<str>(&name)
+            .map(|new_id| new_items[*new_id].display_name())
+            .unwrap_or_else(|| old_sizes.get::<str>(&name)
+                    .map(|old_id| old_items[*old_id].display_name())
+                    .unwrap()
+            );
         let delta: i64 = match (old_size, new_size) {
             (Some(old_size), Some(new_size)) => new_size - old_size,
             (Some(old_size), None) => -old_size,
-            (None, Some(new_size)) => *new_size,
+            (None, Some(new_size)) => new_size,
             (None, None) => {
                 return Err(traits::Error::with_msg(format!(
                     "Could not find item with name `{}`",

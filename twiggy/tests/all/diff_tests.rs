@@ -81,3 +81,13 @@ test!(
     "hello",
     "goodbye"
 );
+
+// FIXME: DO NOT COMMIT - FOR DEBUGGING
+// test!(
+//     diff_wee_alloc_temp_temp,
+//     "diff",
+//     "./fixtures/wee_alloc.wasm",
+//     "./fixtures/wee_alloc.2.wasm",
+//     "-n",
+//     "100"
+// );
