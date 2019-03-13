@@ -437,13 +437,16 @@ impl<'a> Parse<'a> for wasmparser::FunctionSectionReader<'a> {
     fn parse_items(
         &mut self,
         items: &mut ir::ItemsBuilder,
-        (idx, _imported_functions, _names): Self::ItemsExtra,
+        (idx, imported_functions, names): Self::ItemsExtra,
     ) -> Result<(), traits::Error> {
         for (i, func) in iterate_with_size(self).enumerate() {
             let (_func, size) = func?;
             let id = Id::entry(idx, i);
-            let name = format!("func[{}]", i);
-            let item_kind = ir::Function::new(name);
+            let name = names
+                .get(&(i + imported_functions))
+                .map(ToString::to_string);
+            let decorator = format!("func[{}]", i);
+            let item_kind = ir::Function::new(name, decorator);
             items.add_item(ir::Item::new(id, size, item_kind));
         }
         Ok(())

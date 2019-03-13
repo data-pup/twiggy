@@ -476,7 +476,7 @@ impl Item {
                     .unwrap_or_else(|| code.decorator())
             },
             ItemKind::Data(Data { name, .. }) => name,
-            ItemKind::Func(Function { name, .. }) => name,
+            ItemKind::Func(func) => func.decorator(),
             ItemKind::Debug(DebugInfo { name, .. }) => name,
             ItemKind::Misc(Misc { name, .. }) => name,
         }
@@ -720,15 +720,21 @@ impl Data {
 /// Function definition. Declares the signature of a function.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Function {
-    name: String,
+    name: Option<String>,
+    decorator: String,
 }
 
 impl Function {
     /// Construct a new IR item for function definition.
-    pub fn new(name: String) -> Function {
+    pub fn new(name: Option<String>, decorator: String) -> Function {
         Function {
             name,
+            decorator,
         }
+    }
+
+    pub(crate) fn decorator(&self) -> &str {
+        self.decorator.as_ref()
     }
 }
 
